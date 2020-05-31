@@ -26,9 +26,9 @@ enum class TokenType {
 
 class Token {
 public:
-	TokenType type;
+	TokenType type = TokenType::Unknown;
 	std::string value;
-	unsigned int lineNumber;
+	unsigned int lineNumber = 0;
 
 	Token() = default;
 
@@ -38,7 +38,7 @@ public:
 		this->lineNumber = lineNumber;
 	}
 	
-	void print(void) {
+	std::string print(void) {
 		std::string ttype;
 		switch (type) {
 		case TokenType::Integer: 
@@ -77,7 +77,14 @@ public:
 		default:
 			ttype = "Unknown";
 		}
-		std::cout << "Token[" << ttype << ", " << value << "]\n";
+
+		std::string representation = "Token[";
+		representation += ttype;
+		representation += ", ";
+		representation += value;
+		representation += "]\n";
+		std::cout << representation;
+		return representation;
 	}
 };
 
@@ -198,37 +205,49 @@ nodes that will be used to build the
 abstract syntax tree
 */
 
-class Expression {
-	virtual void eval() = 0;
-};
-
-class NumberLitteral: public Expression {
+class Node {
 public:
-	Token token;
-	NumberLitteral() = default;
-	NumberLitteral(Token token) {
-		this->token = token;
+	Token tok;
+	Node* left = nullptr;
+	Node* right = nullptr;
+
+	Node() = default;
+	Node(Token tok) {
+		this->tok = tok;
 	}
 
-	void eval() {
-		return;// token;
-	}
-};
-
-class BinaryOpperation : public Expression {
-public:
-	Token op;
-	std::unique_ptr<Expression> left;
-	std::unique_ptr<Expression> right;
-
-	/*Token*/ void eval() {
-		if (op.type == TokenType::Multiply) {
-			//multiply left and right token and return the new token
+	void print(int indent = 0) {
+		for (unsigned int i = 0; i < indent; i++) {
+			std::cout << "\t";
 		}
-		//return a token of type unknown
+
+		tok.print();
+
+		if (left != nullptr)
+			left->print(indent + 1);
+		
+		if (right != nullptr)
+			right->print(indent + 1);
+	}
+
+	~Node() {
+		if (left != nullptr)
+			delete left;
+
+		if (right != nullptr)
+			delete right;
 	}
 };
 
+// [isFactor]
+
+/*
+abstract syntax tree parser
+-------------------------------------------
+this will beable to parse an set of tokens
+into a syntax node tree with the nodes
+defined above
+*/
 class Parser {
 private:
 	std::vector<Token> tokens;
@@ -239,27 +258,61 @@ private:
 			currentToken = tokens[tokenIndex++];
 	}
 
-	NumberLitteral parseNumberLitteral() {
+	Node* parseNumberLitteral() {
 		advance();
 		if (currentToken.type == TokenType::Integer || currentToken.type == TokenType::Float) {
-			return NumberLitteral(currentToken);
+			return new Node(currentToken);
+		}
+		else {
+			std::cout << "syntax error, expected an number litteral, got: " << currentToken.print();
+			exit(1);
 		}
 	}
 
-	void parseTerm() {
-		BinaryOpperation left;
-		left.left = parseNumberLitteral();
+	Node* parseTerm() {
+		Node* root = new Node();
+		root->left = parseNumberLitteral();
 
 		advance();
+		
 		while (currentToken.type == TokenType::Multiply || currentToken.type == TokenType::Divide) {
 			Token op = currentToken;
-			NumberLitteral right = parseNumberLitteral();
+			Node* right = parseNumberLitteral();
+
+			Node* newRoot = new Node();
+			root->right = right;
+			root->tok = op;
+			newRoot->left = root;
+			root = newRoot;
 		}
+
+		return root->left;
+	}
+
+	Node* parseExpression() {
+		Node* root = new Node();
+		root->left = parseTerm();
+		
+		// advance();
+		
+		while (currentToken.type == TokenType::Plus || currentToken.type == TokenType::Minus) {
+			Token op = currentToken;
+			Node* right = parseTerm();
+			// std::cout << right->left->tok.print();
+
+			Node* newRoot = new Node();
+			root->right = right;
+			root->tok = op;
+			newRoot->left = root;
+			root = newRoot;
+		}
+
+		return root->left;
 	}
 
 public:
-	void parse(void) {
-
+	Node* parse(void) {
+		return parseExpression();
 	}
 
 	void setTokens(std::vector<Token> tokens) {
@@ -289,15 +342,18 @@ void repl() {
 			}
 		}
 
-		if (!error) {
+		/*if (!error) {
 			for (unsigned int i = 0; i < tokens.size(); i++) {
 				tokens[i].print();
 			}
-		}
+		}*/
 
 		parser.setTokens(tokens);
-		parser.parse();
+		Node* AST = parser.parse();
 
+		AST->print();
+
+		delete AST;
 		std::cout << "\n";
 	}
 }
