@@ -223,7 +223,7 @@ public:
 		this->tok = tok;
 	}
 
-	void print(int indent = 0) {
+	void print(unsigned int indent = 0) {
 		for (unsigned int i = 0; i < indent; i++) {
 			std::cout << "  ";
 		}
@@ -261,6 +261,18 @@ private:
 	void advance() {
 		if (tokenIndex < tokens.size())
 			currentToken = tokens[tokenIndex++];
+		else {
+			Token t = Token();
+			t.type = TokenType::END;
+			currentToken = t;
+		}
+	}
+
+	void revert() {
+		if (tokenIndex > 0) {
+			tokenIndex -= 1;
+			currentToken = tokens[tokenIndex];
+		}
 	}
 
 	Node* parseNumberLitteral() {
@@ -283,11 +295,57 @@ private:
 
 			return ret;
 		}
+
+		else if (currentToken.type == TokenType::LeftParen) {
+			std::vector<Token> subexprTokens;
+
+			// load sub expression
+			advance();
+			unsigned int parenCount = 1;
+
+			if (currentToken.type == TokenType::RightParen) {
+				std::cout << "syntax error, expected a number litteral, got: ";
+				currentToken.print();
+				error = true;
+			}
+
+			while (parenCount != 0) {
+				if (currentToken.type == TokenType::END) {
+					std::cout << "syntax error, expected a ) but found end of file";
+					error = true;
+					break;
+				}
+				
+				if (currentToken.type == TokenType::LeftParen)
+					parenCount++;
+
+				if (currentToken.type == TokenType::RightParen)
+					parenCount--;
+
+				subexprTokens.push_back(currentToken);
+
+				advance();
+			}
+
+			subexprTokens.pop_back();
+
+			Parser subexprParser;
+			subexprParser.setTokens(subexprTokens);
+			Node* subAST = subexprParser.parse();
+
+			error = subexprParser.error;
+
+			revert();
+
+			return subAST;
+		}
 		
 		else {
-			std::cout << "syntax error, expected an number litteral, got: ";
+			std::cout << "syntax error, expected a number litteral, got: ";
 			currentToken.print();
 			error = true;
+
+			return new Node();
 		}
 	}
 
@@ -355,6 +413,11 @@ void repl() {
 		std::string code;
 		std::cout << ">> ";
 		std::getline(std::cin, code);
+
+		if (code == "") {
+			std::cout << "\n";
+			continue;
+		}
 
 		// do lexing
 		lexer.setCode(code);
