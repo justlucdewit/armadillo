@@ -38,7 +38,7 @@ public:
 		this->lineNumber = lineNumber;
 	}
 	
-	std::string print(void) {
+	void print(void) {
 		std::string ttype;
 		switch (type) {
 		case TokenType::Integer: 
@@ -84,7 +84,6 @@ public:
 		representation += value;
 		representation += "]\n";
 		std::cout << representation;
-		return representation;
 	}
 };
 
@@ -218,7 +217,7 @@ public:
 
 	void print(int indent = 0) {
 		for (unsigned int i = 0; i < indent; i++) {
-			std::cout << "\t";
+			std::cout << "  ";
 		}
 
 		tok.print();
@@ -238,8 +237,6 @@ public:
 			delete right;
 	}
 };
-
-// [isFactor]
 
 /*
 abstract syntax tree parser
@@ -263,9 +260,11 @@ private:
 		if (currentToken.type == TokenType::Integer || currentToken.type == TokenType::Float) {
 			return new Node(currentToken);
 		}
+		
 		else {
-			std::cout << "syntax error, expected an number litteral, got: " << currentToken.print();
-			exit(1);
+			std::cout << "syntax error, expected an number litteral, got: ";
+			currentToken.print();
+			error = true;
 		}
 	}
 
@@ -284,6 +283,7 @@ private:
 			root->tok = op;
 			newRoot->left = root;
 			root = newRoot;
+			advance();
 		}
 
 		return root->left;
@@ -311,6 +311,8 @@ private:
 	}
 
 public:
+	bool error = false;
+
 	Node* parse(void) {
 		return parseExpression();
 	}
@@ -318,6 +320,7 @@ public:
 	void setTokens(std::vector<Token> tokens) {
 		this->tokens = tokens;
 		tokenIndex = 0;
+		error = false;
 	}
 };
 
@@ -350,6 +353,9 @@ void repl() {
 
 		parser.setTokens(tokens);
 		Node* AST = parser.parse();
+
+		if (parser.error)
+			continue;
 
 		AST->print();
 
