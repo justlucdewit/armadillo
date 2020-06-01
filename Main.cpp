@@ -21,7 +21,9 @@ enum class TokenType {
 	LeftParen,
 	RightParen,
 	Unknown,
-	END
+	END,
+	UnaryPlus,
+	UnaryMinus,
 };
 
 class Token {
@@ -70,6 +72,12 @@ public:
 			break;
 		case TokenType::RightParen:
 			ttype = "RightParentesis";
+			break;
+		case TokenType::UnaryMinus:
+			ttype = "UnaryMinus";
+			break;
+		case TokenType::UnaryPlus:
+			ttype = "UnaryPlus";
 			break;
 		case TokenType::END:
 			ttype = "End";
@@ -259,6 +267,21 @@ private:
 		advance();
 		if (currentToken.type == TokenType::Integer || currentToken.type == TokenType::Float) {
 			return new Node(currentToken);
+		}
+
+		else if (currentToken.type == TokenType::Plus || currentToken.type == TokenType::Minus) {
+			Token old = currentToken;
+			Node* factor = parseNumberLitteral();
+			Node* ret = new Node();
+
+			if (old.type == TokenType::Plus)
+				ret->tok = Token(TokenType::UnaryPlus, "+", old.lineNumber);
+			else
+				ret->tok = Token(TokenType::UnaryMinus, "-", old.lineNumber);
+
+			ret->left = factor;
+
+			return ret;
 		}
 		
 		else {
