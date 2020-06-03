@@ -4,7 +4,7 @@ Node::Node(Token tok) {
 	this->tok = tok;
 }
 
-void Node::print(unsigned int indent = 0) {
+void Node::print(unsigned int indent) {
 	for (unsigned int i = 0; i < indent; i++) {
 		std::cout << "  ";
 	}
@@ -16,6 +16,18 @@ void Node::print(unsigned int indent = 0) {
 
 	if (right != nullptr)
 		right->print(indent + 1);
+}
+
+unsigned int Node::ChildCount() {
+	if (this == nullptr)
+		return 0;
+
+	unsigned int count = 0;
+	if (right == nullptr)
+		count++;
+	if (left == nullptr)
+		count++;
+	return count;
 }
 
 Node::~Node() {

@@ -13,6 +13,7 @@ public:
 	Node(Token tok);
 
 	void print(unsigned int indent = 0);
+	unsigned int ChildCount();
 
 	~Node();
 };
