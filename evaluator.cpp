@@ -112,6 +112,8 @@ void Evaluator::ASTMultiply(Node* SubAST) {
 
 	}
 
+	
+
 	else {
 		if (rtype != TokenType::Integer) {
 			std::cout << "[ERROR] implicite typecast from Integer to Float on line " << SubAST->tok.lineNumber << "\n\n";

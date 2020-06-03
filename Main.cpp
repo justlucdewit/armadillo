@@ -48,7 +48,7 @@ void repl() {
 		if (parser.error)
 			continue;
 
-		//AST->print();
+		AST->print();
 
 		// evaluate expression
 		evalueator.setAST(AST);
@@ -59,9 +59,9 @@ void repl() {
 			continue;
 		}
 
-		//std::cout << "---------------\n";
-		//AST->print();
-		std::cout << AST->tok.value << "\n";
+		std::cout << "---------------\n";
+		AST->print();
+		//std::cout << AST->tok.value << "\n";
 
 
 		// clean up
