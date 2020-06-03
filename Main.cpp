@@ -48,15 +48,20 @@ void repl() {
 		if (parser.error)
 			continue;
 
-		AST->print();
+		//AST->print();
 
 		// evaluate expression
 		evalueator.setAST(AST);
 		evalueator.evaluate();
 
-		std::cout << "---------------\n";
-		AST->print();
-		//std::cout << AST->tok.value << "\n";
+		if (evalueator.error) {
+			evalueator.error = false;
+			continue;
+		}
+
+		//std::cout << "---------------\n";
+		//AST->print();
+		std::cout << AST->tok.value << "\n";
 
 
 		// clean up
