@@ -1,4 +1,5 @@
 #include "node.h"
+#include <cmath>
 
 #pragma once
 class Evaluator {
@@ -11,6 +12,7 @@ private:
 	void ASTAdd(Node* SubAST);
 	void ASTMultiply(Node* SubAST);
 	void ASTDivide(Node* SubAST);
+	void ASTExponent(Node* SubAST);
 
 public:
 	bool error = false;

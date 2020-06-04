@@ -18,7 +18,7 @@ void Parser::revert() {
 }
 
 Token Parser::peek(int amount) {
-	int newIndex = tokenIndex + amount;
+	int newIndex = tokenIndex + amount - 1;
 
 	if (newIndex > 0 && newIndex < tokens.size()) {
 		return tokens[newIndex];
@@ -30,13 +30,27 @@ Token Parser::peek(int amount) {
 	}
 }
 
+Node* Parser::parseExponent(Node* base) {
+	advance();
+	Node* exp = parseNumberLitteral();
+
+	Node* ret = new Node();
+	ret->tok = Token(TokenType::Power, "^", exp->tok.lineNumber);
+	ret->left = base;
+	ret->right = exp;
+
+	return ret;
+}
+
 Node* Parser::parseNumberLitteral() {
 	advance();
+
+
 
 	// standard integer
 	if (currentToken.type == TokenType::Integer || currentToken.type == TokenType::Float) {
 		if (peek().type == TokenType::Power) {
-			std::cout << "found exponent";
+			return parseExponent(new Node(currentToken));
 		}
 		return new Node(currentToken);
 	}

@@ -18,7 +18,7 @@ private:
 	Node* parseNumberLitteral();
 	Node* parseTerm();
 	Node* parseExpression();
-	Node* parseExponent();
+	Node* parseExponent(Node* base);
 
 public:
 	bool error = false;
