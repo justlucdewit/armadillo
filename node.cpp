@@ -31,9 +31,8 @@ unsigned int Node::ChildCount() {
 }
 
 Node::~Node() {
-	if (left != nullptr)
-		delete left;
-
-	if (right != nullptr)
-		delete right;
+	delete left;
+	left = nullptr;
+	delete right;
+	right = nullptr;
 }

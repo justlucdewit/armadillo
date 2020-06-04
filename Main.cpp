@@ -41,6 +41,12 @@ void repl() {
 		if (error)
 			continue;
 
+		
+		for (int i = 0; i < tokens.size(); i++) {
+			tokens[i].print();
+		}
+		std::cout << "---------------\n";
+
 		// parsing the tokens to an AST
 		parser.setTokens(tokens);
 		Node* AST = parser.parse();
@@ -56,6 +62,7 @@ void repl() {
 
 		if (evalueator.error) {
 			evalueator.error = false;
+			delete AST;
 			continue;
 		}
 

@@ -17,12 +17,31 @@ void Parser::revert() {
 	}
 }
 
+Token Parser::peek(int amount) {
+	int newIndex = tokenIndex + amount;
+
+	if (newIndex > 0 && newIndex < tokens.size()) {
+		return tokens[newIndex];
+	}
+
+	else {
+		// return END token to define out of range peek
+		return Token(TokenType::END, "", 0);
+	}
+}
+
 Node* Parser::parseNumberLitteral() {
 	advance();
+
+	// standard integer
 	if (currentToken.type == TokenType::Integer || currentToken.type == TokenType::Float) {
+		if (peek().type == TokenType::Power) {
+			std::cout << "found exponent";
+		}
 		return new Node(currentToken);
 	}
 
+	// unary plus or minus
 	else if (currentToken.type == TokenType::Plus || currentToken.type == TokenType::Minus) {
 		Token old = currentToken;
 		Node* factor = parseNumberLitteral();
@@ -38,6 +57,7 @@ Node* Parser::parseNumberLitteral() {
 		return ret;
 	}
 
+	// sub expression
 	else if (currentToken.type == TokenType::LeftParen) {
 		std::vector<Token> subexprTokens;
 
@@ -82,6 +102,7 @@ Node* Parser::parseNumberLitteral() {
 		return subAST;
 	}
 
+	// undefined syntax
 	else {
 		std::cout << "syntax error, expected a number litteral, got: ";
 		currentToken.print();
@@ -99,17 +120,20 @@ Node* Parser::parseTerm() {
 
 	while (currentToken.type == TokenType::Multiply || currentToken.type == TokenType::Divide) {
 		Token op = currentToken;
+		root->tok = op;
 		Node* right = parseNumberLitteral();
+		root->right = right;
 
 		Node* newRoot = new Node();
-		root->right = right;
-		root->tok = op;
+
 		newRoot->left = root;
 		root = newRoot;
 		advance();
 	}
-
-	return root->left;
+	Node* ret = root->left;
+	root->left = nullptr;
+	delete root;
+	return ret;
 }
 
 Node* Parser::parseExpression() {
@@ -120,17 +144,22 @@ Node* Parser::parseExpression() {
 
 	while (currentToken.type == TokenType::Plus || currentToken.type == TokenType::Minus) {
 		Token op = currentToken;
+		root->tok = op;
 		Node* right = parseTerm();
+		root->right = right;
 		// std::cout << right->left->tok.print();
 
 		Node* newRoot = new Node();
-		root->right = right;
-		root->tok = op;
+
+		
 		newRoot->left = root;
 		root = newRoot;
 	}
 
-	return root->left;
+	Node* ret = root->left;
+	root->left = nullptr;
+	delete root;
+	return ret;
 }
 
 Node* Parser::parse() {

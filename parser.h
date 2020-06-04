@@ -13,10 +13,12 @@ private:
 
 	void advance();
 	void revert();
+	Token peek(int amount = 1);
 
 	Node* parseNumberLitteral();
 	Node* parseTerm();
 	Node* parseExpression();
+	Node* parseExponent();
 
 public:
 	bool error = false;
