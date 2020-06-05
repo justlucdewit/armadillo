@@ -67,7 +67,7 @@ void repl() {
 		}
 
 		//std::cout << "---------------\n";
-		// AST->print();
+		//AST->print();
 		std::cout << AST->tok.value << "\n";
 
 

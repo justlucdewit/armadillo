@@ -76,7 +76,7 @@ void Evaluator::ASTSubtract(Node* SubAST) {
 			return;
 		}
 		SubAST->tok.type = TokenType::Float;
-		SubAST->tok.value = std::to_string(std::pow(std::stof(lval), std::stof(rval)));// ! problem here
+		SubAST->tok.value = std::to_string(std::stof(lval) - std::stof(rval));// ! problem here
 
 	}
 
@@ -87,7 +87,7 @@ void Evaluator::ASTSubtract(Node* SubAST) {
 			return;
 		}
 		SubAST->tok.type = TokenType::Integer;
-		SubAST->tok.value = std::to_string(std::pow(std::stoi(lval), std::stoi(rval)));// ! problem here
+		SubAST->tok.value = std::to_string(std::stoi(lval) - std::stoi(rval));// ! problem here
 	}
 }
 
@@ -181,7 +181,7 @@ void Evaluator::ASTExponent(Node* SubAST) {
 			return;
 		}
 		SubAST->tok.type = TokenType::Float;
-		SubAST->tok.value = std::to_string(std::stof(lval) / std::stof(rval));
+		SubAST->tok.value = std::to_string(std::pow(std::stof(lval), std::stof(rval)));
 
 	}
 
@@ -199,7 +199,7 @@ void Evaluator::ASTExponent(Node* SubAST) {
 			return;
 		}
 
-		SubAST->tok.value = std::to_string(std::stoi(lval) / std::stoi(rval));
+		SubAST->tok.value = std::to_string((int) std::pow(std::stoi(lval), std::stoi(rval)));
 	}
 }
 
